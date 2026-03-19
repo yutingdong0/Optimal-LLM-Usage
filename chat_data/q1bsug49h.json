@@ -1,0 +1,24 @@
+{
+  "id": "q1bsug49h",
+  "messages": [
+    {
+      "role": "user",
+      "content": "this is anotther test"
+    },
+    {
+      "role": "assistant",
+      "content": "Okay! I see you're testing me. Everything looks good so far. \ud83d\ude0a \n\nLet me know if you have any specific tests or questions you're wanting me to perform."
+    },
+    {
+      "role": "user",
+      "content": "respond with bold text and then with a table"
+    },
+    {
+      "role": "assistant",
+      "content": "**Understood! Here's the response as requested: This is a demonstration of responding with bold text followed by a table.**\n\n\n\n| Header 1 | Header 2 | Header 3 |\n|---|---|---|\n| Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 |\n| Row 2, Column 1 | Row 2, Column 2 | Row 2, Column 3 |\n| Row 3, Column 1 | Row 3, Column 2 | Row 3, Column 3 |"
+    }
+  ],
+  "title": "this is anotther test",
+  "tokens_used": 163,
+  "updated_at": "2026-03-12T21:44:39.053134"
+}

@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+    <ul class="nav nav-pills flex-column mb-auto" id="sidebar-chat-ul">
+        {% for chat in chats %}
+        <li class="nav-item mb-1 chat-item-wrapper">
+            <a href="#" class="nav-link text-secondary chat-link d-flex align-items-center py-2 px-3 rounded-3" data-chat-id="{{ chat.id }}">
+                <i class="fa-regular fa-message me-3 fs-6 opacity-75"></i>
+                <span class="text-truncate fw-medium fs-6" style="max-width: 170px;">{{ chat.title }}</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="nav-item empty-state px-3 py-2">
+            <span class="text-muted small">No past chats.</span>
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <div class="chat-container flex-grow-1 overflow-auto p-4 d-flex flex-column align-items-center" id="chat-box">
+        <div class="dashboard w-100 mb-4" id="dashboard">
+            <div class="d-flex flex-wrap justify-content-between bg-dark border border-secondary border-opacity-25 rounded-4 p-4 shadow-sm">
+                <div class="me-4 mb-3">
+                    <div class="text-secondary small">Energy Saved</div>
+                    <div class="fs-3 fw-bold text-white" id="energy-saved">...</div>
+                    <div class="text-secondary small">(est. kWh)</div>
+                </div>
+                <div class="mb-3">
+                    <div class="text-secondary small">Backend status</div>
+                    <div class="fs-6 fw-semibold text-info" id="energy-backend-status">Connecting...</div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-5 fade-in" id="welcome-message">
+            <div class="mb-4 mt-5"><i class="fa-solid fa-wand-magic-sparkles text-primary opacity-75" style="font-size: 3.5rem;"></i></div>
+            <h3 class="fw-bold text-white mb-3 tracking-tight">How can I help you today?</h3>
+            <p class="text-secondary">Start typing a message to begin.</p>
+        </div>
+    </div>
+    <div class="chat-input-container p-4 d-flex justify-content-center pb-5">
+        <form id="chat-form" class="w-100 position-relative shadow-sm" style="max-width: 750px;">
+            <textarea class="form-control glass-input text-light py-3 px-4 pe-5 border-0" id="message-input" rows="1" placeholder="Send a message..." style="resize: none; border-radius: 1.5rem;"></textarea>
+            <button type="submit" class="btn btn-primary rounded-circle position-absolute fade-in" id="send-btn" style="right: 8px; bottom: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s, transform 0.1s;" disabled>
+                <i class="fa-solid fa-arrow-up fs-6"></i>
+            </button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    let currentChatId = null;
+
+    $('#message-input').on('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+        if ($(this).val().trim() !== '') {
+            $('#send-btn').prop('disabled', false).css('opacity', '1');
+        } else {
+            $('#send-btn').prop('disabled', true).css('opacity', '0');
+        }
+    });
+
+    $('#message-input').on('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            $('#chat-form').trigger('submit');
+        }
+    });
+
+    function generateId() {
+        return Math.random().toString(36).substr(2, 9);
+    }
+
+    function scrollToBottom() {
+        const cb = $('#chat-box')[0];
+        cb.scrollTop = cb.scrollHeight;
+    }
+
+    function formatText(content) {
+        if (typeof marked !== 'undefined') {
+            return marked.parse(content);
+        }
+        return content.replace(/\n/g, '<br>');
+    }
+
+    function appendMessage(role, content) {
+        $('#welcome-message').hide();
+        let html = '';
+        if (role === 'user') {
+            html = `
+            <div class="w-100 d-flex justify-content-end mb-4 message-row fade-in" style="max-width: 750px;">
+                <div class="user-msg-bubble rounded-4 rounded-bottom-end-0 px-4 py-3 shadow-sm">
+                    ${formatText(content)}
+                </div>
+            </div>`;
+        } else {
+            html = `
+            <div class="w-100 d-flex justify-content-start mb-4 message-row fade-in" style="max-width: 750px;">
+                <div class="me-3 mt-1 text-center bg-dark border border-secondary border-opacity-25 shadow-sm" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-wand-magic-sparkles text-primary fs-6 opacity-75"></i>
+                </div>
+                <div class="text-light text-start assistant-msg-bubble fs-6" style="max-width: 85%;">
+                    ${formatText(content)}
+                </div>
+            </div>`;
+        }
+        $('#chat-box').append(html);
+        scrollToBottom();
+    }
+
+    $('#chat-form').on('submit', function(e) {
+        e.preventDefault();
+        const msg = $('#message-input').val().trim();
+        if (!msg) return;
+
+        let title = undefined;
+
+        if (!currentChatId) {
+            currentChatId = generateId();
+            title = msg.substring(0, 30) + (msg.length > 30 ? "..." : "");
+            addSidebarItem(currentChatId, title);
+        }
+
+        appendMessage('user', msg);
+        
+        $('#message-input').val('').css('height', 'auto');
+        $('#send-btn').prop('disabled', true).css('opacity', '0');
+
+        const typingId = 'typing-' + Date.now();
+        $('#chat-box').append(`
+            <div id="${typingId}" class="w-100 d-flex justify-content-start mb-4 message-row fade-in" style="max-width: 750px;">
+                <div class="me-3 mt-1 text-center bg-dark border border-secondary border-opacity-25" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-wand-magic-sparkles text-primary fs-6 opacity-75"></i>
+                </div>
+                <div class="text-secondary pt-2">
+                    <span class="spinner-grow spinner-grow-sm text-primary opacity-75" role="status"></span>
+                    <span class="spinner-grow spinner-grow-sm text-primary opacity-75 animation-delay-1" role="status"></span>
+                    <span class="spinner-grow spinner-grow-sm text-primary opacity-75 animation-delay-2" role="status"></span>
+                </div>
+            </div>
+        `);
+        scrollToBottom();
+
+        const payload = { content: msg };
+        if (title) payload.title = title;
+
+        $.ajax({
+            url: '/chat/' + currentChatId + '/message',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            success: function(res) {
+                $('#' + typingId).remove();
+                appendMessage(res.role, res.content);
+            },
+            error: function() {
+                $('#' + typingId).remove();
+                appendMessage('assistant', '<span class="text-danger fw-bold">Error communicating with server.</span>');
+            }
+        });
+    });
+
+    function addSidebarItem(id, title) {
+        $('.empty-state').remove();
+        $('.chat-link').removeClass('active-chat text-white').addClass('text-secondary');
+        const itemHtml = `
+        <li class="nav-item mb-1 chat-item-wrapper fade-in">
+            <a href="#" class="nav-link chat-link active-chat text-white d-flex align-items-center py-2 px-3 rounded-3" data-chat-id="${id}">
+                <i class="fa-solid fa-message me-3 fs-6 opacity-75 text-primary"></i>
+                <span class="text-truncate fw-medium fs-6" style="max-width: 170px;">${title}</span>
+            </a>
+        </li>`;
+        $('#sidebar-chat-ul').prepend(itemHtml);
+    }
+
+    $(document).on('click', '.chat-link', function(e) {
+        e.preventDefault();
+        const chatId = $(this).data('chat-id');
+        
+        $('.chat-link').removeClass('active-chat text-white').addClass('text-secondary');
+        $('.chat-link i').removeClass('fa-solid text-primary').addClass('fa-regular');
+        
+        $(this).removeClass('text-secondary').addClass('active-chat text-white');
+        $(this).find('i').removeClass('fa-regular').addClass('fa-solid text-primary');
+
+        $.get('/chat/' + chatId, function(data) {
+            currentChatId = data.id;
+            $('#chat-box').empty();
+            if (data.messages && data.messages.length > 0) {
+                $('#welcome-message').hide();
+                data.messages.forEach(msg => appendMessage(msg.role, msg.content));
+            } else {
+                $('#welcome-message').show();
+            }
+        });
+    });
+
+    $(document).on('click', '#new-chat-btn', function() {
+        const title = prompt("Enter a name for the new chat:", "New Chat");
+        if (title !== null && title.trim() !== '') {
+            currentChatId = generateId();
+            addSidebarItem(currentChatId, title.trim());
+            $('#chat-box').empty().append(`
+                <div class="text-center mt-5 fade-in" id="welcome-message">
+                    <div class="mb-4 mt-5"><i class="fa-solid fa-wand-magic-sparkles text-primary opacity-75" style="font-size: 3.5rem;"></i></div>
+                    <h3 class="fw-bold text-white mb-3 tracking-tight">How can I help you regarding "${title.trim()}"?</h3>
+                    <p class="text-secondary">Start typing a message to begin.</p>
+                </div>
+            `);
+        }
+    });
+
+    function loadEnergyDashboard() {
+        $('#energy-saved').text('...');
+        $('#energy-backend-status').text('Connecting...');
+
+        // Primary API endpoint (backend to provide energy savings)
+        $.get('/energy', function(data) {
+            if (data && typeof data.energy_saved_kwh !== 'undefined') {
+                $('#energy-saved').text(Number(data.energy_saved_kwh).toFixed(3));
+                $('#energy-backend-status').text('Live data');
+            } else {
+                $('#energy-backend-status').text('No energy data');
+            }
+        }).fail(function() {
+            // Fallback: compute a rough estimate from /stats (tokens -> kWh)
+            $('#energy-backend-status').text('Using estimate (backend not ready)');
+            $.get('/stats', function(data) {
+                const tokens = Number(data.total_tokens || 0);
+                const estKwh = tokens * 0.00001; // placeholder conversion
+                $('#energy-saved').text(estKwh.toFixed(3));
+            });
+        });
+    }
+
+    $('#statsModal').on('show.bs.modal', function() {
+        $('#stat-chat-count, #stat-message-count, #stat-token-count').text('...');
+        $.get('/stats', function(data) {
+            $('#stat-chat-count').text(data.chat_count);
+            $('#stat-message-count').text(data.total_messages);
+            $('#stat-token-count').text(data.total_tokens);
+        });
+    });
+
+    loadEnergyDashboard();
+});
+</script>
+{% endblock %}

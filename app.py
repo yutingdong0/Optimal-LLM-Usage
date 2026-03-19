@@ -49,5 +49,18 @@ async def send_message(chat_id: str, message: MessageRequest):
 async def stats():
     return get_stats()
 
+@app.get("/energy")
+async def energy_saved():
+    """Returns the total estimated energy saved (kWh).
+
+    This is a placeholder endpoint. Replace with a backend calculation
+    when the energy metric is available.
+    """
+    stats = get_stats()
+    # Placeholder conversion: estimate kWh based on token usage.
+    # Replace this with a real formula / API when available.
+    energy_kwh = stats.get("total_tokens", 0) * 0.00001
+    return {"energy_saved_kwh": energy_kwh}
+
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=5010, reload=True)

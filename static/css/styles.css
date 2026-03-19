@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    background-color: #1e1e2e !important;
+    color: #cdd6f4 !important;
+    font-family: 'Inter', -apple-system, sans-serif;
+    letter-spacing: -0.015em;
+}
+
+.tracking-tight {
+    letter-spacing: -0.03em;
+}
+
+.sidebar {
+    background-color: #181825 !important;
+    border-right: 1px solid #313244;
+}
+
+.chat-container {
+    background-color: #1e1e2e;
+}
+
+.chat-input-container {
+    background: linear-gradient(0deg, #1e1e2e 40%, rgba(30,30,46,0) 100%);
+    border-top: none !important;
+}
+
+.glass-input {
+    background-color: #313244 !important;
+    color: #cdd6f4 !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+    transition: all 0.2s ease;
+    border: 1px solid #45475a !important;
+}
+
+.glass-input:focus {
+    box-shadow: 0 0 0 2px #89b4fa, 0 8px 32px rgba(0,0,0,0.2) !important;
+    outline: none !important;
+    background-color: #3b3c51 !important;
+    border-color: transparent !important;
+}
+
+.user-msg-bubble {
+    background: #89b4fa;
+    color: #11111b;
+    font-weight: 500;
+}
+
+.assistant-msg-bubble {
+    color: #cdd6f4;
+    line-height: 1.6;
+    padding-top: 2px;
+}
+
+.btn-primary {
+    background-color: #89b4fa !important;
+    border: none !important;
+    color: #11111b !important;
+    font-weight: 600;
+    transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover {
+    background-color: #b4befe !important;
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+}
+
+.btn-primary:disabled {
+    background-color: #45475a !important;
+    color: #6c7086 !important;
+}
+
+.action-btn {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.chat-link {
+    transition: all 0.15s ease-in-out;
+}
+
+.chat-link:hover {
+    background-color: #313244;
+    color: #cdd6f4 !important;
+}
+
+.active-chat {
+    background-color: #313244 !important;
+}
+
+.fade-in {
+    animation: fadeIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animation-delay-1 { animation-delay: 0.15s; }
+.animation-delay-2 { animation-delay: 0.3s; }
+
+.glass-panel {
+    background: rgba(49, 50, 68, 0.9) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #45475a;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #585b70;
+}
